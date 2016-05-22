@@ -18,8 +18,9 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # detect circles in the image
 circles = cv2.HoughCircles(gray, cv2.cv.CV_HOUGH_GRADIENT, 1.89, 5)
+print circles[0]
 
-import pdb;pdb.set_trace()
+#import pdb;pdb.set_trace()
 print len(circles[0])
 # ensure at least some circles were found
 if circles is not None:
@@ -36,4 +37,3 @@ if circles is not None:
     # show the output image
     cv2.imshow("output", np.hstack([image, output]))
     cv2.waitKey(0)
-
