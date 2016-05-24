@@ -100,6 +100,9 @@ def process_image_using_canny(img, img2):
     #rect, thresh = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     #import pdb; pdb.set_trace()
     contours, hier = cv2.findContours(thresh,mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_SIMPLE)
+
+    #import pdb; pdb.set_trace()
+
     #import pdb; pdb.set_trace()
     circles = []
     for cnt in contours:
@@ -110,4 +113,9 @@ def process_image_using_canny(img, img2):
         #    continue
         cv2.circle(img2, center, radius, 0, 5)
         circles.append([center[0], center[1], radius])
+
+    """ Filter and return the circles which satisfy this criteria """
+    radiis = [cv2.minEnclosingCircle(cnt) for cnt in contours]
+
+
     return circles, img2
