@@ -93,13 +93,19 @@ def process_image_using_contours(img, img2):
 
 """ Hough circles with deviance pruning """
 def process_image_using_canny(img, img2):
+    kernel = np.ones((4,4),np.uint8)
+    img = cv2.erode(img,kernel,iterations = 1)
+    img = cv2.dilate(img,kernel,iterations = 1)
+
     threshold =  int(img.max() - img.std())
     #rect, thresh = cv2.threshold(img, threshold, 255, 0)
     rect,thresh = cv2.threshold(img,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     #blur = cv2.GaussianBlur(img,(5,5),0)
     #rect, thresh = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     #import pdb; pdb.set_trace()
+
     contours, hier = cv2.findContours(thresh,mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(img2, contours, -1, 255, 2)
 
     #import pdb; pdb.set_trace()
 
@@ -109,9 +115,9 @@ def process_image_using_canny(img, img2):
         (x, y), radius = cv2.minEnclosingCircle(cnt)
         center = (int(x), int(y))
         radius = int(radius)
-        #if radius > 23 or radius < 2:
-        #    continue
-        cv2.circle(img2, center, radius, 0, 5)
+        if radius > 23 or radius < 2:
+            continue
+        cv2.circle(img2, center, radius, 0, 2)
         circles.append([center[0], center[1], radius])
 
     """ Filter and return the circles which satisfy this criteria """

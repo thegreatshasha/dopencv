@@ -1,3 +1,4 @@
+import numpy as np
 import cv2
 import argparse
 from detect import process_image_using_contours, auto_canny, hough_circles, process_image_using_canny
@@ -13,8 +14,17 @@ filename = args['image']
 """ Read the input file and resize the image"""
 img = cv2.imread(filename, 0) # Reads a grayscale image
 img2 = cv2.imread(filename) # Read a colored image
-img = cv2.resize(img,(300, 300))
-img2 = cv2.resize(img,(300, 300))
+h, w = img.shape
+
+#img = cv2.resize(img,(300, 300)) This is skewing the ratios
+#img2 = cv2.resize(img,(300, 300))
+
+if h>600:
+  img = cv2.resize(img, (w/4, h/4))
+  img2 = cv2.resize(img2, (w/4, h/4))
+else:
+  img = cv2.resize(img, (w/4, h/4))
+  img2 = cv2.resize(img2, (w/4, h/4))
 
 """ Find max contour and find points inside """
 #def max_contours(img, img2:)
@@ -30,5 +40,5 @@ circ2, img4 = process_image_using_canny(img, img2)
 
 print len(circ2)
 #import pdb; pdb.set_trace()
-imshow(img4, 'homi')
-import pdb; pdb.set_trace()
+imshow(np.hstack([img4]), 'homi')
+#import pdb; pdb.set_trace()
