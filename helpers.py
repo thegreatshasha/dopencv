@@ -14,6 +14,13 @@ def imshow(img1, message):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+""" Fix image width and resize height accrdingly """
+def scaled_resize(img, w_new):
+    h_old = img.shape[0]
+    w_old = img.shape[1]
+    h_new = (h_old * w_new)/w_old
+    return cv2.resize(img, (w_new, h_new))
+
 """ Percentage difference between two values """
 def perc_diff(original, new):
     return abs(float(original - new)/float(original))

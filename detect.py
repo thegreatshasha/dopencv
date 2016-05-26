@@ -47,17 +47,26 @@ def count_circles(img_g, img, canny=True):
 def hough_circles(img, img2):
     height, width = img.shape[:2]
     #img = cv2.resize(img,(width/4, height/4))
-    #img = cv2.GaussianBlur(img, (9, 9), 2, 2)
+    img = cv2.GaussianBlur(img, (9, 9), 2, 2)
     #img = cv2.cvtColor( img, cv2.COLOR_BGR2GRAY )
     #img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 1)
 
     #circles = cv2.HoughCircles(img, cv2.cv.CV_HOUGH_GRADIENT, 2, 10, np.array([]), 20, 60, width/10)[0]
-    circles = cv2.HoughCircles(img, cv2.cv.CV_HOUGH_GRADIENT, 1.89, 5)[0]
+    #circles = cv2.HoughCircles(img, cv2.cv.CV_HOUGH_GRADIENT, 1.89, 5)[0]
+    #circles = cv2.HoughCircles(img, cv2.cv.CV_HOUGH_GRADIENT, )
+    circles = cv2.HoughCircles(img, cv2.cv.CV_HOUGH_GRADIENT,
+              1.0,
+              0.001,
+              param1=100,
+              param2=3.5,
+              minRadius=2,
+              maxRadius=4  )[0]
     #radii_n = circles[:,2]
 
     result = []
 
     for c in circles:
+        #import pdb; pdb.set_trace()
         x, y, radius = c
         #print radius
         center = (int(x), int(y))
@@ -104,7 +113,7 @@ def process_image_using_canny(img, img2):
     #rect, thresh = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     #import pdb; pdb.set_trace()
 
-    contours, hier = cv2.findContours(thresh,mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_SIMPLE)
+    contours, hier = cv2.findContours(thresh,mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_NONE)
     cv2.drawContours(img2, contours, -1, 255, 2)
 
     #import pdb; pdb.set_trace()

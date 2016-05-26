@@ -36,6 +36,12 @@ for contour in contours:
 	permieter = cv2.arcLength(contour, True)
 	moments = cv2.moments(contour)
 
+	# (x, y), radius = cv2.minEnclosingCircle(cnt)
+	# center = (int(x), int(y))
+	# radius = int(radius)
+	# if radius > 23 or radius < 2:
+	# 	continue
+
 	if area < maxArea:
 		finalContours.append(contour)
 		print area, permieter
