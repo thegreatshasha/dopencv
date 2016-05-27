@@ -14,7 +14,7 @@ class TestColonyCounter(unittest.TestCase):
     def setUp(self):
         #directory = 'images/set1'
         #os.listdir(directory)
-        self.imgs = glob('images/set1/*')
+        self.imgs = glob('images/set3/*')
         #elf.imgs = ['images/image_359.jpg', 'images/cv_9.png']
         self.img_size = 425
         self.img_matr_g = [scaled_resize(cv2.imread(f, 0), self.img_size) for f in self.imgs]

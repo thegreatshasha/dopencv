@@ -60,7 +60,7 @@ def hough_circles(img, img2):
               param1=100,
               param2=3.5,
               minRadius=2,
-              maxRadius=4  )[0]
+              maxRadius=4)[0]
     #radii_n = circles[:,2]
 
     result = []
@@ -77,28 +77,6 @@ def hough_circles(img, img2):
         cv2.circle(img2, center, radius, (0, 255, 0), 2)
         result.append([center[0], center[1], radius])
     return result, img2
-
-
-""" How well does canny + contours work? """
-def process_image_using_contours(img, img2):
-    #img = cv2.GaussianBlur(img, (9, 9), 2, 2)
-    threshold =  int(img.max() - img.std())
-    rect, thresh = cv2.threshold(img, threshold, 255, 0)
-    contours, hier = cv2.findContours(thresh, mode=cv2.RETR_LIST, method=cv2.CHAIN_APPROX_SIMPLE)
-    #cv2.drawContours(img, contours, -1, (255, 0, 0), 3)
-    circles = []
-    radiis = []
-    for cnt in contours:
-        (x, y), radius = cv2.minEnclosingCircle(cnt)
-        radiis.append(radius)
-        #print radius
-        center = (int(x), int(y))
-        radius = int(radius)
-        #if radius > 23 or radius < 2:
-        #   continue
-        cv2.circle(img2, center, radius, (255, 255, 0), 2)
-        circles.append([center[0], center[1], radius])
-    return circles, img2
 
 """ Hough circles with deviance pruning """
 def process_image_using_canny(img, img2):

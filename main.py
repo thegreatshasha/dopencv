@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import argparse
-from detect import process_image_using_contours, auto_canny, hough_circles, process_image_using_canny
+from detect import auto_canny, hough_circles, process_image_using_canny
 from helpers import imshow, scaled_resize
 
 """ Build the argument parser """
