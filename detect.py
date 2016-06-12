@@ -74,7 +74,7 @@ def hough_circles(img, img2):
         # if radius < 0 or radius > 50:
         #     continue
         #if draw:
-        cv2.circle(img2, center, radius, (0, 255, 0), 2)
+        #cv2.circle(img2, center, radius, (0, 255, 0), 2)
         result.append([center[0], center[1], radius])
     return result, img2
 
