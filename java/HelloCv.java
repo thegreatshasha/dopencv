@@ -19,7 +19,7 @@ public class HelloCv extends Test{
       try{
 
          System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-         Mat source = Highgui.imread("/Users/shashwat/Downloads/cropped images/300 min.jpg",  Highgui.CV_LOAD_IMAGE_COLOR);
+         Mat source = Highgui.imread("/Users/shashwat/Downloads/cropped images/RB 210 min.jpg",  Highgui.CV_LOAD_IMAGE_COLOR);
          source = Test.scaledResize(source, 1000);
          Mat destination = new Mat(source.rows(),source.cols(),source.type());
          Mat gray = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
