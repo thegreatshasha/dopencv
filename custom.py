@@ -51,6 +51,9 @@ def colony_count(img_b):
     mx = regional_maxima(dist_transform)
     return measure.label(mx, background=0).max()
 
+#def label(img):
+
+
 def cropContour(img, contours, idx):
     cimg = np.zeros_like(img)
     cv2.drawContours(cimg, contours, idx, color=(255,255,255), thickness=-1)
