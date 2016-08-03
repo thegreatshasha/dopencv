@@ -19,7 +19,7 @@ public class HelloCv extends Test{
       try{
 
          System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-         Mat source = Highgui.imread("/Users/shashwat/Downloads/cropped images/RB 210 min.jpg",  Highgui.CV_LOAD_IMAGE_COLOR);
+         Mat source = Highgui.imread("/Users/shashwat/Downloads/cropped images/90 min.jpg",  Highgui.CV_LOAD_IMAGE_COLOR);
          source = Test.scaledResize(source, 1000);
          Mat destination = new Mat(source.rows(),source.cols(),source.type());
          Mat gray = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
@@ -43,7 +43,7 @@ public class HelloCv extends Test{
          // Find contours
          List<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //
          List<MatOfPoint> cnts = new ArrayList<MatOfPoint>();
-         Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_NONE);
+         Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
          System.out.println("Total Contours: "+contours.size());
 
          // Iterate over contours and print only the ones who have a circularity greater than 5
@@ -69,11 +69,14 @@ public class HelloCv extends Test{
            //System.out.println(circ);
          }
 
-         int totalCount = 0;
+         int totalCount = 0, cnt=0;
 
          for (int i=0; i<cnts.size(); i++){
            Mat cr = cropContour(source, cnts, i);
-           totalCount += Test.count(cr);
+           cnt = Test.count(cr);
+           if(cnt>1)
+             System.out.println(cnt);
+           totalCount += cnt;
          }
 
          System.out.println("contours: "+ cnts.size() +" total: "+totalCount);

@@ -9,6 +9,8 @@ import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.Stack;
+
 public class Test {
   static{
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -88,19 +90,49 @@ public class Test {
   }
 
   //Returns 1 for pixels marked as regional maxima and 0 for non maxima pixels
-  public static void dfsset(Mat inp, int i, int j, int pixel) {
-      if(getPixel(inp, i, j) != pixel)
-          return;
-      else
-          inp.put(i,j,0);
-      if(j>0)
-          dfsset(inp, i, j-1, pixel);
-      if(j<inp.cols()-1)
-          dfsset(inp, i, j+1, pixel);
-      if(i>0)
-          dfsset(inp, i-1, j, pixel);
-      if(i<inp.rows()-1)
-          dfsset(inp, i+1, j, pixel);
+  // public static void dfsset_stack(Mat inp, int i, int j, int pixel) {
+  //     if(getPixel(inp, i, j) != pixel)
+  //         return;
+  //     else
+  //         inp.put(i,j,0);
+  //     if(j>0)
+  //         dfsset(inp, i, j-1, pixel);
+  //     if(j<inp.cols()-1)
+  //         dfsset(inp, i, j+1, pixel);
+  //     if(i>0)
+  //         dfsset(inp, i-1, j, pixel);
+  //     if(i<inp.rows()-1)
+  //         dfsset(inp, i+1, j, pixel);
+  //  }
+
+   // Code review is the best way to spot bugs
+   // Stack based version of dfsset to avoid running into memory leaks
+   public static void dfsset(Mat inp, int i, int j, int pixel) {
+      Node parent = new Node(i, j);
+
+      Stack<Node> st = new Stack<Node>();
+
+      st.push(parent);
+
+      while(!st.empty()){
+          // Equivalent dfsset code here
+          Node node = st.pop();
+
+          // Color all pixels with the value=pixel
+          if(getPixel(inp, node.i, node.j) == pixel){
+            // Set this node as black
+            inp.put(node.i, node.j, 0);
+
+            if(node.j>0)
+                st.push(new Node(node.i, node.j-1));
+            if(node.j<inp.cols()-1)
+                st.push(new Node(node.i, node.j+1));
+            if(node.i>0)
+                st.push(new Node(node.i-1, node.j));
+            if(node.i<inp.rows()-1)
+                st.push(new Node(node.i+1, node.j));
+          }
+      }
    }
 
   // Regional maxima detection using
@@ -140,30 +172,68 @@ public class Test {
         return false;
   }
 
-  public static void dfsset2(Mat damon, int i, int j, int value){
+  // public static void dfsset2_deprecated(Mat damon, int i, int j, int value){
+  //
+  //   //System.out.println(i+","+j);
+  //   int pixel = getPixel(damon, i, j);
+  //   //System.out.println("pixel:"+pixel);
+  //   if(pixel==1){
+  //     damon.put(i, j, value);
+  //
+  //     if(j>0)
+  //         dfsset2(damon, i, j-1, value);
+  //     if(j<damon.cols()-1)
+  //         dfsset2(damon, i, j+1, value);
+  //     if(i>0)
+  //         dfsset2(damon, i-1, j, value);
+  //     if(i<damon.rows()-1)
+  //         dfsset2(damon, i+1, j, value);
+  //     if(i>0 && j>0)
+  //         dfsset2(damon, i-1, j-1, value);
+  //     if(i>0 && j<damon.cols())
+  //         dfsset2(damon, i-1, j+1, value);
+  //     if(i<damon.rows() && j>0)
+  //         dfsset2(damon, i+1, j-1, value);
+  //     if(i<damon.rows() && j<damon.cols())
+  //         dfsset2(damon, i+1, j+1, value);
+  //   }
+  // }
 
-    //System.out.println(i+","+j);
-    int pixel = getPixel(damon, i, j);
-    //System.out.println("pixel:"+pixel);
-    if(pixel==1){
-      damon.put(i, j, value);
+  public static void dfsset2(Mat damon, int i, int j, int label){
+    Node parent = new Node(i, j);
 
-      if(j>0)
-          dfsset2(damon, i, j-1, value);
-      if(j<damon.cols()-1)
-          dfsset2(damon, i, j+1, value);
-      if(i>0)
-          dfsset2(damon, i-1, j, value);
-      if(i<damon.rows()-1)
-          dfsset2(damon, i+1, j, value);
-      if(i>0 && j>0)
-          dfsset2(damon, i-1, j-1, value);
-      if(i>0 && j<damon.cols())
-          dfsset2(damon, i-1, j+1, value);
-      if(i<damon.rows() && j>0)
-          dfsset2(damon, i+1, j-1, value);
-      if(i<damon.rows() && j<damon.cols())
-          dfsset2(damon, i+1, j+1, value);
+    Stack<Node> st = new Stack<Node>();
+
+    st.push(parent);
+
+    while(!st.empty()){
+      // Process current pixel node
+      Node node = st.pop();
+
+      int pixel = getPixel(damon, node.i, node.j);
+
+      // If it's a white connected pixel, label it and add it's neighbours
+      if(pixel==1){
+          damon.put(node.i, node.j, label);
+
+          // Also label the 8 connected neighbourhood of this pixel
+          if(node.j>0)
+              st.push(new Node(node.i, node.j-1));
+          if(node.j<damon.cols()-1)
+              st.push(new Node(node.i, node.j+1));
+          if(node.i>0)
+              st.push(new Node(node.i-1, node.j));
+          if(node.i<damon.rows()-1)
+              st.push(new Node(node.i+1, node.j));
+          if(node.i>0 && node.j>0)
+              st.push(new Node(node.i-1, node.j-1));
+          if(node.i>0 && node.j<damon.cols())
+              st.push(new Node(node.i-1, node.j+1));
+          if(node.i<damon.rows() && node.j>0)
+              st.push(new Node(node.i+1, node.j-1));
+          if(node.i<damon.rows() && node.j<damon.cols())
+              st.push(new Node(node.i+1, node.j+1));
+      }
     }
   }
 
