@@ -14,93 +14,94 @@ import org.opencv.imgproc.Imgproc;
 import java.util.*;
 
 public class HelloCv extends Test{
-   public static void main( String[] args ){
+  public static void main(String[] args){
 
-      try{
+       try{
 
-         System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-         Mat source = Highgui.imread("/Users/shashwat/Downloads/cropped images/90 min.jpg",  Highgui.CV_LOAD_IMAGE_COLOR);
-         source = Test.scaledResize(source, 1000);
-         Mat destination = new Mat(source.rows(),source.cols(),source.type());
-         Mat gray = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
-         Mat tophat = new Mat(gray.rows(), gray.cols(), CvType.CV_8UC1);
-         destination = source;
+          Mat source = Highgui.imread("/Users/shashwat/Downloads/cropped images/30 min.jpg",  Highgui.CV_LOAD_IMAGE_COLOR);
+          source = Test.scaledResize(source, 1000);
 
-         // RGB to gray
-	       Imgproc.cvtColor(destination, gray, Imgproc.COLOR_BGR2GRAY);
+          Mat gray = source.clone();
+          Test.saveImg("original.png", gray);
+          //
+          //  // RGB to gray
+          Imgproc.cvtColor(gray, gray, Imgproc.COLOR_BGR2GRAY);
+          //
+          //  // Do top hat filtering to correct for uneven illumination, does it work for all images? Let's hope so or we'll implement rolling ball algorithm
+          Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(35,35));
+          Imgproc.morphologyEx(gray, gray, Imgproc.MORPH_TOPHAT, kernel);
+          Test.saveImg("tophatted.png", gray);
+          //
+          //  // Otsu thresholding on the tophat image
+          Imgproc.threshold(gray,gray,0,255,Imgproc.THRESH_OTSU);
+          //
+          //  // Save everything
+          Test.saveImg("thresholded.png", gray);
+          //
+          //  // Testing, testing
+          Imgproc.distanceTransform(gray, gray, Imgproc.CV_DIST_L2, 3);
+          Test.saveImg("dt.png", gray);
+          //
+          //  // Find contours
+           List<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //
+           List<MatOfPoint> cnts = new ArrayList<MatOfPoint>();
+           Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+           //System.out.println("Total Contours: "+contours.size());
 
-	       // Do top hat filtering to correct for uneven illumination, does it work for all images? Let's hope so or we'll implement rolling ball algorithm
-	       Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(35,35));
-         Imgproc.morphologyEx(gray, tophat, Imgproc.MORPH_TOPHAT, kernel);
-         Test.saveImg("1.jpg", tophat);
+           // Iterate over contours and print only the ones who have a circularity greater than 5
+           for (int i=0; i<contours.size(); i++){
+               MatOfPoint2f cont = new MatOfPoint2f(contours.get(i).toArray());
+               double perimeter = Imgproc.arcLength(cont, true);
+               double area = Imgproc.contourArea(cont);
 
-         // Otsu thresholding on the tophat image
-         Imgproc.threshold(tophat,gray,0,255,Imgproc.THRESH_OTSU);
+               if(perimeter ==0){
+                   continue;
+               }
 
-         // Save everything
-         Test.saveImg("2.jpg", gray);
+               double circ = (4*Math.PI*area)/(Math.pow(perimeter,2));
 
-         // Find contours
-         List<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //
-         List<MatOfPoint> cnts = new ArrayList<MatOfPoint>();
-         Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-         System.out.println("Total Contours: "+contours.size());
+               if(circ>0.2 && area>20){
+                   //System.out.println("Id"+i);
+                   cnts.add(contours.get(i));
+                   //Mat cr = cropContour(source, cnts, i);
+                   //System.out.println(Test.count(cr));
+               }
 
-         // Iterate over contours and print only the ones who have a circularity greater than 5
-         for (int i=0; i<contours.size(); i++){
-           MatOfPoint2f cont = new MatOfPoint2f(contours.get(i).toArray());
-           double perimeter = Imgproc.arcLength(cont, true);
-           double area = Imgproc.contourArea(cont);
 
-           if(perimeter ==0){
-             continue;
+               //System.out.println(circ);
+           }
+          int totalCount = 0;
+
+           for (int i=0; i<cnts.size(); i++){
+               Mat cr = cropContour(source, cnts, i);
+               int count = Test.count(cr, i);
+               //Log.d("count",Integer.toString(count));
+               totalCount += count;
            }
 
-           double circ = (4*Math.PI*area)/(Math.pow(perimeter,2));
+           //Log.d("yo", "contours: "+ cnts.size() +" total: "+totalCount);
+           //System.out.println();
 
-           if(circ>0.2 && area>20){
-             //System.out.println("Id"+i);
-             cnts.add(contours.get(i));
-             //Mat cr = cropContour(source, cnts, i);
-             //System.out.println(Test.count(cr));
-           }
-
-
-           //System.out.println(circ);
-         }
-
-         int totalCount = 0, cnt=0;
-
-         for (int i=0; i<cnts.size(); i++){
-           Mat cr = cropContour(source, cnts, i);
-           cnt = Test.count(cr);
-           if(cnt>1)
-             System.out.println(cnt);
-           totalCount += cnt;
-         }
-
-         System.out.println("contours: "+ cnts.size() +" total: "+totalCount);
-
-        //Mat cr = cropContour(source, cnts, 1);
-        //Highgui.imwrite("0.jpg", cr);
-        //System.out.println("count: "+Test.count(cr));
-        //    System.out.println("count: "+Test.count(cr));
-         //Highgui.imwrite("3.jpg", cr);
-         //System.out.println(cr.dump());
+           //Mat cr = cropContour(source, cnts, 1);
+           //Highgui.imwrite("0.jpg", cr);
+           //System.out.println("count: "+Test.count(cr));
+           //    System.out.println("count: "+Test.count(cr));
+           //Highgui.imwrite("3.jpg", cr);
+           //System.out.println(cr.dump());
 
 
-         // Draw contours on gray image
-         Imgproc.drawContours(source, cnts, -1, new Scalar(255,255,0), 2);
-         Test.saveImg("contours.jpg", source);
-         //Highgui.imwrite("3.jpg", source);
+           // Draw contours on gray image
+           Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 4);
+           //Test.saveImg("contours.jpg", source);
+           //Highgui.imwrite("3.jpg", source);
 
 
-         // Crop contours and run colony count on them
-         // Make class for counting colonies given an image patch as input
+           // Crop contours and run colony count on them
+           // Make class for counting colonies given an image patch as input
 
-      }catch (Exception e) {
-         System.out.println("error: " + e.getMessage());
-      }
+       }catch (Exception e) {
+           System.out.println("error: " + e.getMessage());
+       }
    }
 
    public static Mat cropContour(Mat img, List<MatOfPoint> contours, int idx){
