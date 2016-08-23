@@ -18,7 +18,7 @@ public class HelloDistance extends Test{
 
        try{
 
-        Mat source = Highgui.imread("/Users/shashwat/Downloads/cropped images/30 min.jpg",Highgui.CV_LOAD_IMAGE_COLOR);
+        Mat source = Highgui.imread("/Users/shashwat/Downloads/Sooryasplates/IMG_20160713_144900.jpg",Highgui.CV_LOAD_IMAGE_COLOR);
         source = Test.scaledResize(source, 1000);
         Mat destination = new Mat(source.rows(),source.cols(),source.type());
         Mat gray = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
@@ -81,6 +81,9 @@ public class HelloDistance extends Test{
         Core.MinMaxLocResult mmr = Core.minMaxLoc(rm);
         int count = (int)mmr.maxVal-1;
         System.out.println(count);
+
+        Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 2);
+        Test.saveImg("final.png", source);
 
        }catch (Exception e) {
            System.out.println("error: " + e.getMessage());
