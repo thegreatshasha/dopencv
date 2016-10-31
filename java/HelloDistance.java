@@ -49,7 +49,7 @@ public class HelloDistance extends Test{
      Point center = new Point(source.cols()/2, source.rows()/2);
      Scalar maskColor = new Scalar(255, 255, 255);
 
-     Core.circle(mask, center, Math.min(source.rows()/2, source.cols()/2) - 20, maskColor, -1);
+     Core.circle(mask, center, Math.min(source.rows()/2, source.cols()/2) - 15, maskColor, -1);
      Test.saveImg(fileName+"_mask.jpg", mask);
      blur.copyTo(tophat_mask, mask);
      Core.bitwise_and(blur, blur, tophat_mask, mask);
