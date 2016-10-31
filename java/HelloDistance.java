@@ -37,7 +37,7 @@ public class HelloDistance extends Test{
      Imgproc.cvtColor(destination, gray, Imgproc.COLOR_BGR2GRAY);
 
      // Do top hat filtering to correct for uneven illumination, does it work for all images? Let's hope so or we'll implement rolling ball algorithm
-     Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(35,35));
+     Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(50,50));
      Imgproc.morphologyEx(gray, tophat, Imgproc.MORPH_TOPHAT, kernel);
      Test.saveImg(fileName+"_tophat.jpg", tophat);
 
