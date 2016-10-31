@@ -20,11 +20,11 @@ public class Test {
     //System.out.println("Hello, OpenCV");
 
     // Load the native library.
-    Mat source = Highgui.imread("/Users/shashwat/Downloads/watershed1.tiff");
-    source = Test.scaledResize(source, 500);
-    Imgproc.cvtColor(source, source , Imgproc.COLOR_BGR2GRAY);
-    Imgproc.threshold(source,source,0,255,Imgproc.THRESH_BINARY_INV|Imgproc.THRESH_OTSU);
-    System.out.println(count(source, 0));
+    // Mat source = Highgui.imread("/Users/shashwat/Downloads/watershed1.tiff");
+    // source = Test.scaledResize(source, 500);
+    // Imgproc.cvtColor(source, source , Imgproc.COLOR_BGR2GRAY);
+    // Imgproc.threshold(source,source,0,255,Imgproc.THRESH_BINARY_INV|Imgproc.THRESH_OTSU);
+    //System.out.println(count(source, 0));
     // Now to label and print connected components
 
     //label(source);
@@ -54,54 +54,6 @@ public class Test {
     Core.normalize(img2, img2, 0, 255, Core.NORM_MINMAX,  CvType.CV_8UC1);
     Highgui.imwrite(name, img2);
   }
-
-  public static int count(Mat inpu, int index){
-
-        Mat source = inpu.clone();
-        //Mat source = inp.clone();
-        Mat dt = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
-        //Imgproc.cvtColor(source, source , Imgproc.COLOR_BGR2GRAY);
-        //Imgproc.threshold(source,source,0,255,Imgproc.THRESH_BINARY|Imgproc.THRESH_OTSU);
-        String name1 = "thresh"+String.valueOf(index)+".png";
-        String name2 = "dt"+String.valueOf(index)+".png";
-        String name3 = "max"+String.valueOf(index)+".png";
-        //Log.v("success", name1);
-        //Log.v("success", name2);
-        //Log.v("success", name2);
-        saveImg(name1, source);
-
-        //System.out.println(source.dump());
-        // Operate on the distance transform image now
-        Imgproc.distanceTransform(source, dt, Imgproc.CV_DIST_L2, 3);
-        Core.normalize(dt, dt, 0, 255, Core.NORM_MINMAX,  CvType.CV_8UC1);
-        saveImg(name2, dt);
-        // Cool so distance transform works fine
-        Mat rm = regional_maxima(source);
-        //System.out.println(source.dump());
-
-        Imgproc.threshold(rm,rm,0,1,Imgproc.THRESH_BINARY);
-
-        Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new  Size(2,2));
-        Imgproc.dilate(rm, rm, element1);
-
-        //System.out.println(rm.dump());
-        label(rm);
-        //Imgproc.dilate(rm, )
-        //Core.normalize(rm, rm, 0, 255, Core.NORM_MINMAX,  CvType.CV_8UC1);
-        //Highgui.imwrite("3.jpg", rm);
-
-        //System.out.println(rm.dump());
-        //saveImg("3.jpg", rm);
-
-
-
-        Core.MinMaxLocResult mmr = Core.minMaxLoc(rm);
-        //System.out.println(rm);
-        int count = (int)mmr.maxVal-1;
-        saveImg(name3, rm);
-        return count;
-        //return 0;
-    }
   // public static int count_new(Mat source, int index){
   //       Mat dt = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
   //       //Imgproc.cvtColor(source, source , Imgproc.COLOR_BGR2GRAY);

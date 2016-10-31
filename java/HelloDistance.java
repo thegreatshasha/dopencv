@@ -6,6 +6,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Scalar;
+import org.opencv.core.Point;
 
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
@@ -16,18 +17,19 @@ import java.io.File;
 
 public class HelloDistance extends Test{
 
-  public static int countColonies(String fileName){
+  public static int countColonies(String filePath, String fileName){
     try{
-     Mat source = Highgui.imread(fileName, Highgui.CV_LOAD_IMAGE_COLOR);
-
-     // Apply mask here
-
+      // Raw image without mask
+     Mat source = Highgui.imread(filePath, Highgui.CV_LOAD_IMAGE_COLOR);
      source = Test.scaledResize(source, 1000);
+
      Mat destination = new Mat(source.rows(),source.cols(),source.type());
      Mat gray = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
      Mat blur = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
      Mat tophat = new Mat(gray.rows(), gray.cols(), CvType.CV_8UC1);
      Mat dt = new Mat(gray.rows(), gray.cols(), CvType.CV_8UC1);
+     Mat mask = new Mat(gray.rows(), gray.cols(), CvType.CV_8UC1, Scalar.all(0));
+     Mat tophat_mask = new Mat(gray.rows(), gray.cols(), CvType.CV_8UC1);
      Mat rm = new Mat(gray.rows(), gray.cols(), CvType.CV_8UC1);
      destination = source;
 
@@ -37,15 +39,25 @@ public class HelloDistance extends Test{
      // Do top hat filtering to correct for uneven illumination, does it work for all images? Let's hope so or we'll implement rolling ball algorithm
      Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(35,35));
      Imgproc.morphologyEx(gray, tophat, Imgproc.MORPH_TOPHAT, kernel);
-     Test.saveImg("tophat.jpg", tophat);
+     Test.saveImg(fileName+"_tophat.jpg", tophat);
 
      // Blur before thresholding
      Imgproc.GaussianBlur(tophat, blur, new Size(5,5), 0);
-     Test.saveImg("blurred.jpg", blur);
+     Test.saveImg(fileName+"_blurred.jpg", blur);
+
+     // Apply mask on the image
+     Point center = new Point(source.cols()/2, source.rows()/2);
+     Scalar maskColor = new Scalar(255, 255, 255);
+
+     Core.circle(mask, center, Math.min(source.rows()/2, source.cols()/2) - 20, maskColor, -1);
+     Test.saveImg(fileName+"_mask.jpg", mask);
+     blur.copyTo(tophat_mask, mask);
+     Core.bitwise_and(blur, blur, tophat_mask, mask);
+     Test.saveImg(fileName+"_tophat_mask.jpg", tophat_mask);
 
      // Otsu thresholding on the tophat image
-     Imgproc.threshold(blur,gray,0,255,Imgproc.THRESH_BINARY|Imgproc.THRESH_OTSU);
-     Test.saveImg("threshold.png", gray);
+     Imgproc.threshold(tophat_mask,gray,0,255,Imgproc.THRESH_BINARY|Imgproc.THRESH_OTSU);
+     Test.saveImg(fileName+"_threshold.png", gray);
 
      // Find contours
      List<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //
@@ -65,31 +77,41 @@ public class HelloDistance extends Test{
 
        double circ = (4*Math.PI*area)/(Math.pow(perimeter,2));
 
-       if(circ>0.05 && area>100 && area<8000){
+       if(area>100){
          cnts.add(contours.get(i));
        }
      }
 
      Mat black = Mat.zeros(gray.rows(), gray.cols(), CvType.CV_8UC1);
      Imgproc.drawContours(black, cnts, -1, new Scalar(255,255,255), -1);
-     Test.saveImg("black_contours.png", black);
+     Test.saveImg(fileName+"_black_contours.png", black);
 
      // Do the distance trnasform and count
      Imgproc.distanceTransform(black, dt, Imgproc.CV_DIST_L2, Imgproc.CV_DIST_MASK_PRECISE);
-     Test.saveImg("distance_transform.png", dt);
+     Test.saveImg(fileName+"_distance_transform.png", dt);
 
      rm = Test.regional_maxima(dt);
-     Test.saveImg("regional_maxima.png", rm);
+     Test.saveImg(fileName+"_regional_maxima.png", rm);
 
      Test.label(rm);
-     Test.saveImg("label.png", rm);
+     Test.saveImg(fileName+"_label.png", rm);
      //System.out.println(rm.dump());
      Core.MinMaxLocResult mmr = Core.minMaxLoc(rm);
      int count = (int)mmr.maxVal-1;
      //System.out.println(count);
 
      Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 2);
-     Test.saveImg("final.png", source);
+     Test.saveImg(fileName+"_final.png", source);
+
+     // Release all matrices
+     destination.release();
+     gray.release();
+     blur.release();
+     tophat.release();
+     dt.release();
+     mask.release();
+     tophat_mask.release();
+     rm.release();
 
      return count;
 
@@ -104,7 +126,7 @@ public class HelloDistance extends Test{
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
     // Read files from dataset
-    File folder = new File("/Users/shashwat/workspace/dopencv/java/dataset");
+    File folder = new File("/Users/shashwat/workspace/dopencv/java/dataset/");
     File[] listOfFiles = folder.listFiles();
     double errorSum = 0.0;
 
@@ -113,7 +135,7 @@ public class HelloDistance extends Test{
             String filePath = file.getAbsolutePath();
             String fileName = file.getName();
             int trueCount = Integer.parseInt(fileName.replace(".jpg",""));
-            int predCount = countColonies(filePath);
+            int predCount = countColonies(filePath, fileName);
             double deviation = 100 - 100*((double)Math.abs(trueCount - predCount))/((double) trueCount);
             errorSum += deviation;
             System.out.println(trueCount + "->" + predCount + " percent: " + deviation);
