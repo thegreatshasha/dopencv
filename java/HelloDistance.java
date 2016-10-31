@@ -134,7 +134,11 @@ public class HelloDistance extends Test{
      //System.out.println(count);
 
      time1 = System.nanoTime();
-     Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 2);
+     //Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 2);
+     Mat bgr = new Mat(rm.size(), CvType.CV_8UC3, new Scalar(0,0,0));
+     rm.convertTo(rm, CvType.CV_8U);
+     bgr.setTo(new Scalar(0,0,255), rm);
+     bgr.copyTo(source, rm);
      Test.saveImg(fileName+"_final.png", source);
      time2 = System.nanoTime();
      //System.out.println("drawfinal: " + (time2/1000000 - time1/1000000) + " ms");
@@ -148,6 +152,7 @@ public class HelloDistance extends Test{
      mask.release();
      tophat_mask.release();
      rm.release();
+     bgr.release();
 
      return count;
 
