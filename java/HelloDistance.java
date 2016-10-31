@@ -129,6 +129,7 @@ public class HelloDistance extends Test{
     File folder = new File("/Users/shashwat/workspace/dopencv/java/dataset/");
     File[] listOfFiles = folder.listFiles();
     double errorSum = 0.0;
+    int count = 0;
 
     for (File file : listOfFiles) {
         if (file.isFile()) {
@@ -138,11 +139,12 @@ public class HelloDistance extends Test{
             int predCount = countColonies(filePath, fileName);
             double deviation = 100 - 100*((double)Math.abs(trueCount - predCount))/((double) trueCount);
             errorSum += deviation;
+            count += 1;
             System.out.println(trueCount + "->" + predCount + " percent: " + deviation);
         }
     }
 
-    System.out.println("Net accuracy: "+errorSum/listOfFiles.length);
+    System.out.println("Net accuracy: "+errorSum/count);
 
     //int count = countColonies("/Users/shashwat/Downloads/75.jpg");
    }
