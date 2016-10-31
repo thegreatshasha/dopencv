@@ -49,7 +49,7 @@ public class Test {
   }
 
   public static void saveImg(String name, Mat img){
-    System.out.println("Saving: "+name);
+    //System.out.println("Saving: "+name);
     Mat img2 = copyToBlack(img);//img.clone();
     Core.normalize(img2, img2, 0, 255, Core.NORM_MINMAX,  CvType.CV_8UC1);
     Highgui.imwrite(name, img2);

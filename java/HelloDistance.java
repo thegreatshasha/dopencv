@@ -12,6 +12,7 @@ import org.opencv.imgproc.Imgproc;
 
 
 import java.util.*;
+import java.io.File;
 
 public class HelloDistance extends Test{
 
@@ -50,7 +51,7 @@ public class HelloDistance extends Test{
      List<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //
      List<MatOfPoint> cnts = new ArrayList<MatOfPoint>();
      Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-     System.out.println("Total Contours: "+contours.size());
+     //System.out.println("Total Contours: "+contours.size());
 
      // Iterate over contours and print only the ones who have a circularity greater than 5
      for (int i=0; i<contours.size(); i++){
@@ -85,7 +86,7 @@ public class HelloDistance extends Test{
      //System.out.println(rm.dump());
      Core.MinMaxLocResult mmr = Core.minMaxLoc(rm);
      int count = (int)mmr.maxVal-1;
-     System.out.println(count);
+     //System.out.println(count);
 
      Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 2);
      Test.saveImg("final.png", source);
@@ -101,6 +102,26 @@ public class HelloDistance extends Test{
 
   public static void main(String[] args){
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-      int count = countColonies("/Users/shashwat/Downloads/trouble.jpg");
+
+    // Read files from dataset
+    File folder = new File("/Users/shashwat/workspace/dopencv/java/dataset");
+    File[] listOfFiles = folder.listFiles();
+    double errorSum = 0.0;
+
+    for (File file : listOfFiles) {
+        if (file.isFile()) {
+            String filePath = file.getAbsolutePath();
+            String fileName = file.getName();
+            int trueCount = Integer.parseInt(fileName.replace(".jpg",""));
+            int predCount = countColonies(filePath);
+            double deviation = 100 - 100*((double)Math.abs(trueCount - predCount))/((double) trueCount);
+            errorSum += deviation;
+            System.out.println(trueCount + "->" + predCount + " percent: " + deviation);
+        }
+    }
+
+    System.out.println("Net accuracy: "+errorSum/listOfFiles.length);
+
+    //int count = countColonies("/Users/shashwat/Downloads/75.jpg");
    }
 }
