@@ -25,7 +25,7 @@ public class HelloDistance extends Test{
      time1 = System.nanoTime();
      source = Test.scaledResize(source, 1000);
      time2 = System.nanoTime();
-     System.out.println("read: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("read: " + (time2/1000000 - time1/1000000) + " ms");
 
      Mat destination = new Mat(source.rows(),source.cols(),source.type());
      Mat gray = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
@@ -46,14 +46,14 @@ public class HelloDistance extends Test{
      Imgproc.morphologyEx(gray, tophat, Imgproc.MORPH_TOPHAT, kernel);
      Test.saveImg(fileName+"_tophat.jpg", tophat);
      time2 = System.nanoTime();
-     System.out.println("tophat: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("tophat: " + (time2/1000000 - time1/1000000) + " ms");
 
      // Blur before thresholding
      time1 = System.nanoTime();
      Imgproc.GaussianBlur(tophat, blur, new Size(5,5), 0);
      Test.saveImg(fileName+"_blurred.jpg", blur);
      time2 = System.nanoTime();
-     System.out.println("gaussianblur: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("gaussianblur: " + (time2/1000000 - time1/1000000) + " ms");
 
      // Apply mask on the image
      time1 = System.nanoTime();
@@ -66,14 +66,14 @@ public class HelloDistance extends Test{
      Core.bitwise_and(blur, blur, tophat_mask, mask);
      Test.saveImg(fileName+"_tophat_mask.jpg", tophat_mask);
      time2 = System.nanoTime();
-     System.out.println("mask: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("mask: " + (time2/1000000 - time1/1000000) + " ms");
 
      // Otsu thresholding on the tophat image
      time1 = System.nanoTime();
      Imgproc.threshold(tophat_mask,gray,0,255,Imgproc.THRESH_BINARY|Imgproc.THRESH_OTSU);
      Test.saveImg(fileName+"_threshold.png", gray);
      time2 = System.nanoTime();
-     System.out.println("threshold: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("threshold: " + (time2/1000000 - time1/1000000) + " ms");
 
      // Find contours
      time1 = System.nanoTime();
@@ -99,44 +99,45 @@ public class HelloDistance extends Test{
        }
      }
      time2 = System.nanoTime();
-     System.out.println("find contours: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("find contours: " + (time2/1000000 - time1/1000000) + " ms");
 
      time1 = System.nanoTime();
      Mat black = Mat.zeros(gray.rows(), gray.cols(), CvType.CV_8UC1);
      Imgproc.drawContours(black, cnts, -1, new Scalar(255,255,255), -1);
      Test.saveImg(fileName+"_black_contours.png", black);
      time2 = System.nanoTime();
-     System.out.println("draw contours: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("draw contours: " + (time2/1000000 - time1/1000000) + " ms");
 
      time1 = System.nanoTime();
      // Do the distance trnasform and count
      Imgproc.distanceTransform(black, dt, Imgproc.CV_DIST_L2, Imgproc.CV_DIST_MASK_PRECISE);
      Test.saveImg(fileName+"_distance_transform.png", dt);
      time2 = System.nanoTime();
-     System.out.println("distance transform: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("distance transform: " + (time2/1000000 - time1/1000000) + " ms");
 
      time1 = System.nanoTime();
      rm = Test.regional_maxima(dt);
      Test.saveImg(fileName+"_regional_maxima.png", rm);
      time2 = System.nanoTime();
-     System.out.println("regional max: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("regional max: " + (time2/1000000 - time1/1000000) + " ms");
 
      time1 = System.nanoTime();
      Test.label(rm);
      Test.saveImg(fileName+"_label.png", rm);
+     //System.out.println("label: " + (time2/1000000 - time1/1000000) + " ms");
      //System.out.println(rm.dump());
      time1 = System.nanoTime();
      Core.MinMaxLocResult mmr = Core.minMaxLoc(rm);
      int count = (int)mmr.maxVal-1;
      time2 = System.nanoTime();
-     System.out.println("label: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("minmax: " + (time2/1000000 - time1/1000000) + " ms");
      //System.out.println(count);
 
      time1 = System.nanoTime();
      Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 2);
      Test.saveImg(fileName+"_final.png", source);
      time2 = System.nanoTime();
-     System.out.println("drawfinal: " + (time2/1000000 - time1/1000000) + " ms");
+     //System.out.println("drawfinal: " + (time2/1000000 - time1/1000000) + " ms");
 
      // Release all matrices
      destination.release();
@@ -164,6 +165,7 @@ public class HelloDistance extends Test{
     File folder = new File("/Users/shashwat/workspace/dopencv/java/dataset/");
     File[] listOfFiles = folder.listFiles();
     double errorSum = 0.0;
+    double varSum = 0.0;
     int count = 0;
 
     for (File file : listOfFiles) {
@@ -172,14 +174,16 @@ public class HelloDistance extends Test{
             String fileName = file.getName();
             int trueCount = Integer.parseInt(fileName.replace(".jpg",""));
             int predCount = countColonies(filePath, fileName);
-            double deviation = 100 - 100*((double)Math.abs(trueCount - predCount))/((double) trueCount);
-            errorSum += deviation;
+
+            double deviation = 100*((double)Math.abs(trueCount - predCount))/((double) trueCount);
+            errorSum += (100-deviation);
+            varSum += deviation*deviation;
             count += 1;
-            System.out.println(trueCount + "->" + predCount + " percent: " + deviation);
+            System.out.println(trueCount + "->" + predCount + " percent: " + (100-deviation));
         }
     }
 
-    System.out.println("Net accuracy: "+errorSum/count);
+    System.out.println("Net accuracy: "+errorSum/count + " variance: "+varSum/count);
 
     //int count = countColonies("/Users/shashwat/Downloads/75.jpg");
    }
