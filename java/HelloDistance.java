@@ -21,7 +21,7 @@ public class HelloDistance extends Test{
     try{
       // Raw image without mask
      Mat source = Highgui.imread(filePath, Highgui.CV_LOAD_IMAGE_COLOR);
-     source = Test.scaledResize(source, 1000);
+     source = Test.scaledResize(source, 700);
 
      Mat destination = new Mat(source.rows(),source.cols(),source.type());
      Mat gray = new Mat(source.rows(), source.cols(), CvType.CV_8UC1);
@@ -37,19 +37,19 @@ public class HelloDistance extends Test{
      Imgproc.cvtColor(destination, gray, Imgproc.COLOR_BGR2GRAY);
 
      // Do top hat filtering to correct for uneven illumination, does it work for all images? Let's hope so or we'll implement rolling ball algorithm
-     Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(35,35));
+     Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(50,50));
      Imgproc.morphologyEx(gray, tophat, Imgproc.MORPH_TOPHAT, kernel);
      Test.saveImg(fileName+"_tophat.jpg", tophat);
 
      // Blur before thresholding
-     Imgproc.GaussianBlur(tophat, blur, new Size(5,5), 0);
+     Imgproc.GaussianBlur(tophat, blur, new Size(3,3), 0);
      Test.saveImg(fileName+"_blurred.jpg", blur);
 
      // Apply mask on the image
      Point center = new Point(source.cols()/2, source.rows()/2);
      Scalar maskColor = new Scalar(255, 255, 255);
 
-     Core.circle(mask, center, Math.min(source.rows()/2, source.cols()/2) - 20, maskColor, -1);
+     Core.circle(mask, center, Math.min(source.rows()/2, source.cols()/2) - 10, maskColor, -1);
      Test.saveImg(fileName+"_mask.jpg", mask);
      blur.copyTo(tophat_mask, mask);
      Core.bitwise_and(blur, blur, tophat_mask, mask);
@@ -77,7 +77,7 @@ public class HelloDistance extends Test{
 
        double circ = (4*Math.PI*area)/(Math.pow(perimeter,2));
 
-       if(area>100){
+       if(area>50){
          cnts.add(contours.get(i));
        }
      }
@@ -129,6 +129,7 @@ public class HelloDistance extends Test{
     File folder = new File("/Users/shashwat/workspace/dopencv/java/dataset/");
     File[] listOfFiles = folder.listFiles();
     double errorSum = 0.0;
+    int count = 0;
 
     for (File file : listOfFiles) {
         if (file.isFile()) {
@@ -138,11 +139,12 @@ public class HelloDistance extends Test{
             int predCount = countColonies(filePath, fileName);
             double deviation = 100 - 100*((double)Math.abs(trueCount - predCount))/((double) trueCount);
             errorSum += deviation;
+            count += 1;
             System.out.println(trueCount + "->" + predCount + " percent: " + deviation);
         }
     }
 
-    System.out.println("Net accuracy: "+errorSum/listOfFiles.length);
+    System.out.println("Net accuracy: "+errorSum/count);
 
     //int count = countColonies("/Users/shashwat/Downloads/75.jpg");
    }
