@@ -136,6 +136,8 @@ public class HelloDistance extends Test{
      time1 = System.nanoTime();
      //Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 2);
      Mat bgr = new Mat(rm.size(), CvType.CV_8UC3, new Scalar(0,0,0));
+     kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5,5));
+     Imgproc.dilate(rm, rm, kernel);
      rm.convertTo(rm, CvType.CV_8U);
      bgr.setTo(new Scalar(0,0,255), rm);
      bgr.copyTo(source, rm);
