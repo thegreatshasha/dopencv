@@ -1,5 +1,6 @@
 import org.opencv.core.Core;
 import org.opencv.core.Size;
+import org.opencv.core.Point;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -18,8 +19,12 @@ public class HelloCv extends Test{
 
        try{
 
-          Mat source = Highgui.imread("/Users/shashwat/Downloads/cropped images/30 min.jpg",  Highgui.CV_LOAD_IMAGE_COLOR);
+          System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
+          Mat source = Highgui.imread("/Users/shashwat/Downloads/5855040805151358023-account_id=2.jpg",  Highgui.CV_LOAD_IMAGE_COLOR);
           source = Test.scaledResize(source, 1000);
+          Mat mask = new Mat(source.rows(), source.cols(), CvType.CV_8UC1, Scalar.all(0));
+          Mat tophat_mask = new Mat(source.rows(), source.cols(), CvType.CV_8UC1, Scalar.all(0));
 
           Mat gray = source.clone();
           Test.saveImg("original.png", gray);
@@ -33,51 +38,69 @@ public class HelloCv extends Test{
           Test.saveImg("tophatted.png", gray);
           //
           //  // Otsu thresholding on the tophat image
-          Imgproc.threshold(gray,gray,0,255,Imgproc.THRESH_OTSU);
+          //Imgproc.threshold(gray,gray,0,255,Imgproc.THRESH_OTSU);
           //
           //  // Save everything
-          Test.saveImg("thresholded.png", gray);
+          //Test.saveImg("thresholded.png", gray);
           //
           //  // Testing, testing
-          Imgproc.distanceTransform(gray, gray, Imgproc.CV_DIST_L2, 3);
-          Test.saveImg("dt.png", gray);
+          //Imgproc.distanceTransform(gray, gray, Imgproc.CV_DIST_L2, 3);
+          //Test.saveImg("dt.png", gray);
+
+          // Create a mask
+          Point center = new Point(source.cols()/2, source.rows()/2);
+          Scalar maskColor = new Scalar(255, 255, 255);
+          Core.circle(mask, center, Math.min(source.rows()/2, source.cols()/2), maskColor, -1);
+          Test.saveImg("mask.jpg", mask);
+
+          // Create a mask, figure out why this is not working
+          //tophat.copyTo(tophat_mask, mask);
+          //Core.bitwise_and(tophat, tophat, tophat, mask);
+          //Test.saveImg("tophat_mask.jpg", tophat);
+          System.out.println(gray.dump());
+          Core.bitwise_and(gray, gray, tophat_mask, mask);
+          Test.saveImg("tophat_mask.jpg", tophat_mask);
+
+          // Test creating and applying the mask here
+
+
           //
           //  // Find contours
-           List<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //
-           List<MatOfPoint> cnts = new ArrayList<MatOfPoint>();
-           Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-           //System.out.println("Total Contours: "+contours.size());
-
-           // Iterate over contours and print only the ones who have a circularity greater than 5
-           for (int i=0; i<contours.size(); i++){
-               MatOfPoint2f cont = new MatOfPoint2f(contours.get(i).toArray());
-               double perimeter = Imgproc.arcLength(cont, true);
-               double area = Imgproc.contourArea(cont);
-
-               if(perimeter ==0){
-                   continue;
-               }
-
-               double circ = (4*Math.PI*area)/(Math.pow(perimeter,2));
-
-               if(circ>0.2 && area>20){
-                   //System.out.println("Id"+i);
-                   cnts.add(contours.get(i));
-                   //Mat cr = cropContour(source, cnts, i);
-                   //System.out.println(Test.count(cr));
-               }
-
-
-               //System.out.println(circ);
-           }
-          int totalCount = 0;
-
-           for (int i=0; i<cnts.size(); i++){
-               Mat cr = cropContour(source, cnts, i);
-               int count = Test.count(cr, i);
-               //Log.d("count",Integer.toString(count));
-               totalCount += count;
-           }
+          //  List<MatOfPoint> contours = new ArrayList<MatOfPoint>(); //
+          //  List<MatOfPoint> cnts = new ArrayList<MatOfPoint>();
+          //  Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+          //  //System.out.println("Total Contours: "+contours.size());
+          //
+          //  // Iterate over contours and print only the ones who have a circularity greater than 5
+          //  for (int i=0; i<contours.size(); i++){
+          //      MatOfPoint2f cont = new MatOfPoint2f(contours.get(i).toArray());
+          //      double perimeter = Imgproc.arcLength(cont, true);
+          //      double area = Imgproc.contourArea(cont);
+          //
+          //      if(perimeter ==0){
+          //          continue;
+          //      }
+          //
+          //      double circ = (4*Math.PI*area)/(Math.pow(perimeter,2));
+          //
+          //      if(circ>0.2 && area>20){
+          //          //System.out.println("Id"+i);
+          //          cnts.add(contours.get(i));
+          //          //Mat cr = cropContour(source, cnts, i);
+          //          //System.out.println(Test.count(cr));
+          //      }
+          //
+          //
+          //      //System.out.println(circ);
+          //  }
+          // int totalCount = 0;
+          //
+          //  for (int i=0; i<cnts.size(); i++){
+          //      Mat cr = cropContour(source, cnts, i);
+          //      int count = Test.count(cr, i);
+          //      //Log.d("count",Integer.toString(count));
+          //      totalCount += count;
+          //  }
 
            //Log.d("yo", "contours: "+ cnts.size() +" total: "+totalCount);
            //System.out.println();
@@ -91,7 +114,7 @@ public class HelloCv extends Test{
 
 
            // Draw contours on gray image
-           Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 4);
+           //Imgproc.drawContours(source, cnts, -1, new Scalar(255,0,0), 4);
            //Test.saveImg("contours.jpg", source);
            //Highgui.imwrite("3.jpg", source);
 

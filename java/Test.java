@@ -12,9 +12,9 @@ import org.opencv.imgproc.Imgproc;
 import java.util.Stack;
 
 public class Test {
-  static{
-    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-  }
+  // static{
+  //   System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+  // }
 
   public static void main(String[] args) {
     //System.out.println("Hello, OpenCV");

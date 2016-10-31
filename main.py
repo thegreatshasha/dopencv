@@ -20,7 +20,6 @@ h, w = img.shape
 #img2 = cv2.resize(img,(300, 300))
 img = scaled_resize(img, 425)
 img2 = scaled_resize(img2, 425)
-
 # if h>600:
 #   img = cv2.resize(img, (w/4, h/4))
 #   img2 = cv2.resize(img2, (w/4, h/4))
