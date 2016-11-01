@@ -199,7 +199,7 @@ public class HelloDistance extends Test{
         }
     }
 
-    html += "</tr><tr><h3>Avg accuracy: " + errorSum/count + " Variance: "+varSum/count+"</h3></tr></tbody></table></body></html>";
+    html += "</tr><tr><h3>Avg accuracy: " + errorSum/count + "    Variance: "+varSum/count+"</h3></tr></tbody></table><style type=\"text/css\">img{max-width: 100%;height: auto;width: 100%;}</style></body></html>";
 
 
 
@@ -212,7 +212,7 @@ public class HelloDistance extends Test{
     }
 
     //System.out.println(html);
-    System.out.println("Net accuracy: "+errorSum/count + " variance: "+varSum/count);
+    //System.out.println("Net accuracy: "+errorSum/count + " variance: "+varSum/count);
 
     // Write hmtl to file
     //int count = countColonies("/Users/shashwat/Downloads/75.jpg");
