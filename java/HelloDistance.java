@@ -7,6 +7,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Scalar;
 import org.opencv.core.Point;
+import java.io.PrintWriter;
 
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
@@ -165,6 +166,11 @@ public class HelloDistance extends Test{
     }
   }
 
+  public static String generateHtmlRow(String fileName, int trueCount, int predCountm, double accuracy) {
+    String html = "<tr><td>"+accuracy+"</td><td><img src=\""+trueCount+".jpg_final.png\"></td><td><img src=\""+trueCount+".jpg_tophat_mask.jpg\"/></td><td><img src=\""+trueCount+".jpg_threshold.png\"/></td><td><img src=\""+trueCount+".jpg_black_contours.png\"/></td></td></tr>";
+    return html;
+  }
+
   public static void main(String[] args){
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
@@ -174,6 +180,7 @@ public class HelloDistance extends Test{
     double errorSum = 0.0;
     double varSum = 0.0;
     int count = 0;
+    String html = "<html><head><meta charset=\"utf-8\"><title></title></head><body><table><tbody><tr><th>Accuracy</th><th>Final</th><th>Tophat</th><th>Threshold</th><th>Contours</th></tr><tr>";
 
     for (File file : listOfFiles) {
         if (file.isFile()) {
@@ -187,11 +194,27 @@ public class HelloDistance extends Test{
             varSum += deviation*deviation;
             count += 1;
             System.out.println(trueCount + "->" + predCount + " percent: " + (100-deviation));
+
+            html += generateHtmlRow(fileName, trueCount, predCount, 100-deviation);
         }
     }
 
+    html += "</tr><tr><h3>Avg accuracy: " + errorSum/count + " Variance: "+varSum/count+"</h3></tr></tbody></table></body></html>";
+
+
+
+    try{
+        PrintWriter writer = new PrintWriter("report.html", "UTF-8");
+        writer.println(html);
+        writer.close();
+    } catch (Exception e) {
+       // do something
+    }
+
+    //System.out.println(html);
     System.out.println("Net accuracy: "+errorSum/count + " variance: "+varSum/count);
 
+    // Write hmtl to file
     //int count = countColonies("/Users/shashwat/Downloads/75.jpg");
    }
 }
