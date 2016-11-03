@@ -166,8 +166,8 @@ public class HelloDistance extends Test{
     }
   }
 
-  public static String generateHtmlRow(String fileName, int trueCount, int predCountm, double accuracy) {
-    String html = "<tr><td>"+accuracy+"</td><td><img src=\""+trueCount+".jpg_final.png\"></td><td><img src=\""+trueCount+".jpg_tophat_mask.jpg\"/></td><td><img src=\""+trueCount+".jpg_threshold.png\"/></td><td><img src=\""+trueCount+".jpg_black_contours.png\"/></td></td></tr>";
+  public static String generateHtmlRow(String fileName, int trueCount, int predCount, double accuracy) {
+    String html = "<tr><td>"+trueCount+"</td><td>"+predCount+"</td><td>"+accuracy+"</td><td><img src=\""+trueCount+".jpg_final.png\"></td><td><img src=\""+trueCount+".jpg_tophat_mask.jpg\"/></td><td><img src=\""+trueCount+".jpg_threshold.png\"/></td><td><img src=\""+trueCount+".jpg_black_contours.png\"/></td></td></tr>";
     return html;
   }
 
@@ -180,7 +180,7 @@ public class HelloDistance extends Test{
     double errorSum = 0.0;
     double varSum = 0.0;
     int count = 0;
-    String html = "<html><head><meta charset=\"utf-8\"><title></title></head><body><table><tbody><tr><th>Accuracy</th><th>Final</th><th>Tophat</th><th>Threshold</th><th>Contours</th></tr><tr>";
+    String html = "<html><head><meta charset=\"utf-8\"><title></title></head><body><table><tbody><tr><th>Actual</th><th>Predicted</th><th>Accuracy</th><th>Final</th><th>Tophat</th><th>Threshold</th><th>Contours</th></tr><tr>";
 
     for (File file : listOfFiles) {
         if (file.isFile()) {
